@@ -17,11 +17,12 @@ class EventEmitter {
      * fire event
      *
      * @static
-     * @param string $event
-     * @param mixed  $args
+     * @param int|string $event
+     * @param mixed|null $args
      * @return bool
      */
-    public function emit($event, $args = null) {
+    public function emit(int|string $event, mixed $args = null) {
+
         $event = strtolower($event);
 
         if ($args !== null) {
@@ -54,8 +55,8 @@ class EventEmitter {
         // Loop listeners for callback
         foreach ($allListeners as $name => $listeners) {
             $thisArgs = $args;
-            if (strpos($name, '*') !== false) {
-                array_push($thisArgs, $event);
+            if (str_contains($name, '*')) {
+                $thisArgs[] = $event;
             }
             foreach ($listeners as &$listener) {
                 if ($listener instanceof \Closure) {
@@ -80,11 +81,12 @@ class EventEmitter {
      * Attach a event listener
      *
      * @static
-     * @param array|string $event
+     * @param int|array|string $event
      * @param \Closure     $listener
      * @return $this
      */
-    public function on($event, \Closure $listener) {
+    public function on(int|array|string $event, \Closure $listener): static
+    {
         foreach ((array)$event as $e) {
             $this->listeners[strtolower($e)][] = $listener;
         }
@@ -108,12 +110,13 @@ class EventEmitter {
     /**
      * Attach a listener to emit many times
      *
-     * @param array|string $event
-     * @param int          $times
-     * @param callable     $listener
+     * @param array|string|int $event
+     * @param int $times
+     * @param \Closure|null $listener
      * @return $this
      */
-    public function many($event, $times = 1, \Closure $listener) {
+    public function many(array|string|int $event, int $times = 1, \Closure $listener = null): static
+    {
         foreach ((array)$event as $e) {
             $this->listeners[strtolower($e)][] = array($listener, array('times' => $times));
         }

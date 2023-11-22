@@ -24,10 +24,10 @@
     "wechaty/php-grpc": "^v0.16.2",
     "guzzlehttp/guzzle": "^7.0",
     "zhangchunsheng/php-qrcode": "^v0.0.2",
-    "imangazaliev/didom": "^v1.16"
-  },
-  "require-dev": {
-
+    "imangazaliev/didom": "^v1.16",
+    "ext-grpc": "*",
+    "symfony/var-dumper": "^6.0",
+    "symfony/deprecation-contracts": "^3.0"
   },
   "config": {
 

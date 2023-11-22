@@ -7,6 +7,7 @@
  */
 namespace IO\Github\Wechaty\PuppetService;
 
+use Grpc\ChannelCredentials;
 use IO\Github\Wechaty\Puppet\FileBox\FileBox;
 use IO\Github\Wechaty\Puppet\Puppet;
 use IO\Github\Wechaty\Puppet\Schemas\ContactPayload;
@@ -68,6 +69,8 @@ class PuppetService extends Puppet {
         } catch (\Exception $e) {
             Logger::ERR("start() rejection:", $e);
             self::$_STATE = StateEnum::OFF;
+
+            throw $e;
         }
 
         return true;
@@ -775,6 +778,8 @@ class PuppetService extends Puppet {
         }
         $hostname = $discoverHostieIp[0] . ":" . $discoverHostieIp[1];
 
+        echo $hostname.PHP_EOL;
+
         // update
         // \Grpc\ChannelCredentials::createSsl();
         $token = array(
@@ -782,9 +787,7 @@ class PuppetService extends Puppet {
             "access_token" => $this->_puppetOptions ? $this->_puppetOptions->token : "",
         );
         $updateMetadata =
-            function ($metadata,
-                      $authUri = null,
-                      $client = null) use ($token) {
+            function ($metadata, $authUri = null, $client = null) use ($token) {
                 $metadataCopy = $metadata;
                 $metadataCopy["authorization"] =
                     [sprintf('%s %s',
@@ -793,7 +796,7 @@ class PuppetService extends Puppet {
 
                 return $metadataCopy;
             };
-        Logger::DEBUG($updateMetadata);
+//        Logger::DEBUG($updateMetadata);
         // WECHATY_PUPPET_SERVICE_NO_TLS_INSECURE_CLIENT
         // WECHATY_PUPPET_SERVICE_TLS_CA_CERT
         // WECHATY_PUPPET_SERVICE_TLS_SERVER_NAME
@@ -801,13 +804,13 @@ class PuppetService extends Puppet {
         if($noTls === "true" || $noTls === true) {
             Logger::DEBUG("start client with no tls");
             $this->_grpcClient = new \Wechaty\PuppetClient($hostname, [
-                'credentials' => \Grpc\ChannelCredentials::createInsecure(),
+                'credentials' => ChannelCredentials::createInsecure(),
                 'update_metadata' => $updateMetadata,
             ]);
         } else {
             Logger::DEBUG("start client with tls");
             $this->_grpcClient = new \Wechaty\PuppetClient($hostname, [
-                'credentials' => \Grpc\ChannelCredentials::createSsl(WechatyCA::TLS_CA_CERT),
+                'credentials' => ChannelCredentials::createSsl(WechatyCA::TLS_CA_CERT),
                 'update_metadata' => $updateMetadata,
                 'grpc.ssl_target_name_override' => WechatyCA::TLS_INSECURE_SERVER_CERT_COMMON_NAME,
                 'grpc.default_authority' => $token['access_token'],

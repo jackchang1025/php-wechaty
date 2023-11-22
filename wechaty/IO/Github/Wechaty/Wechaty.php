@@ -32,7 +32,7 @@ use LM\Exception;
 class Wechaty extends EventEmitter {
 
     protected static $_INSTANCE;
-    protected static $_INSTANCES = array();
+    protected static array $_INSTANCES = [];
 
     private $_puppetOptions = null;
     private $_wechatyOptions = null;
@@ -215,6 +215,8 @@ class Wechaty extends EventEmitter {
     private function _initPuppetEventBridge(PuppetService\PuppetService $puppet) {
         //{"qrcode":"https://login.weixin.qq.com/l/IaysbZa04Q==","status":5}
         $puppet->on(EventEnum::SCAN, function(EventScanPayload $payload) {
+
+            dd('_initPuppetEventBridge');
             $this->emit(EventEnum::SCAN, $payload->qrcode ?: "", $payload->status, $payload->data ?: "");
         });
         $puppet->on(EventEnum::HEART_BEAT, function($payload) {
